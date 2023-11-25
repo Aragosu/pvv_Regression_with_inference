@@ -40,46 +40,12 @@ class Items(BaseModel):
     objects: List[Item]
 
 
-
 # ==============================  0. Загрузка данных  ==============================
-'''
-df_train = pd.read_csv('https://raw.githubusercontent.com/hse-mlds/ml/main/hometasks/HT1/cars_train.csv')
-df_test = pd.read_csv('test_data_with_price.csv',dtype={'name': str,
-                                            'year': int,
-                                            'selling_price': int,
-                                            'km_driven': int,
-                                            'fuel': str,
-                                            'seller_type': str,
-                                            'transmission': str,
-                                            'owner': str,
-                                            'mileage': str,
-                                            'engine': str,
-                                            'max_power': str,
-                                            'torque': str,
-                                            'seats': float})
-'''
-
-def delete_outliers(data):
-    IQR = np.percentile(data, 75) - np.percentile(data, 25)
-    lower_bound = np.percentile(data, 25) - 1.5 * IQR
-    upper_bound = np.percentile(data, 75) + 1.5 * IQR
-    outliers = (data < lower_bound) | (data > upper_bound)
-    return outliers
-
-
 def preprocessing_f(start_df, type_df='new'):
-    columns_for_diplicate = ['name', 'year',
-                             'km_driven', 'fuel',
-                             'seller_type', 'transmission',
-                             'owner', 'mileage', 'engine',
-                             'max_power', 'torque', 'seats']
 
     # ==============================  1. Препроцессинг данных - чистка ==============================
-    # 1.1 - Удаление дубликатов
-#    if type_df == 'pred':
-    new_df_train = start_df.drop_duplicates(subset=columns_for_diplicate, keep='first')
-    new_df_train = new_df_train.reset_index(drop=True)
-#    else: new_df_train = start_df
+    # 1.1 - старт
+    new_df_train = start_df
 
     # 1.2 - Обработка признаков
     # трейн
@@ -96,7 +62,6 @@ def preprocessing_f(start_df, type_df='new'):
     max_power_median = round(new_df_train.max_power.median(), 2)
     seats_median = round(new_df_train.seats.median(), 1)
 
-    # трейн
     new_df_train['mileage'] = new_df_train['mileage'].fillna(mileage_median)
     new_df_train['engine'] = new_df_train['engine'].fillna(engine_median)
     new_df_train['max_power'] = new_df_train['max_power'].fillna(max_power_median)
@@ -106,6 +71,7 @@ def preprocessing_f(start_df, type_df='new'):
     # трейн
     new_df_train['engine'] = new_df_train['engine'].astype(int)
     new_df_train['seats'] = new_df_train['seats'].astype(int)
+    new_df_train['km_driven'] = new_df_train['km_driven'].astype(int)
 
     # ==============================  2. Препроцессинг данных - добавление фичей  ==============================
     # 2.1 - квадраты числовых параметров
@@ -123,7 +89,6 @@ def preprocessing_f(start_df, type_df='new'):
     return X_train_fin
 
 
-
 # ==============================  3. Кодировка  ==============================
 def encoder_f(X_start):
     X_cat = X_start[['fuel','seller_type','transmission']]
@@ -131,7 +96,6 @@ def encoder_f(X_start):
     encoded_data_array = encoder_loaded.transform(X_cat).toarray()
     encoded_df = pd.DataFrame(encoded_data_array,
                               columns = encoder_loaded.get_feature_names_out(list(X_cat.columns))).reset_index(drop=True)
-
     X_fin = X_start.drop(X_cat, axis=1).reset_index(drop=True)
     X_encoded = pd.concat([X_fin, encoded_df], axis=1)
     return X_encoded
@@ -157,11 +121,7 @@ async def predict_item(item: Item) -> float:
     X_new_encoded_scaled = scaler_f(X_new_encoded)
     model_loaded = load('grid_search_model.pkl')
     Y_new_pred = model_loaded.predict(X_new_encoded_scaled)
-#    Y_new_pred = pd.DataFrame(Y_new_pred, columns=['pred'])
-#    result_df = pd.concat([X_new, Y_new_pred], axis=1)
     return Y_new_pred[0][0]
-
-
 
 @app.post("/predict_items")
 async def predict_items(file: UploadFile = File(...)):
@@ -184,7 +144,7 @@ async def predict_items(file: UploadFile = File(...)):
     model_loaded = load('grid_search_model.pkl')
     Y_new_pred = model_loaded.predict(X_new_encoded_scaled)
     Y_new_pred = pd.DataFrame(Y_new_pred, columns=['pred'])
-    result_df = pd.concat([X_new, Y_new_pred], axis=1)
+    result_df = pd.concat([df_new, Y_new_pred], axis=1)
 
     stream = io.StringIO()
     result_df.to_csv(stream, index=False)
