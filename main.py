@@ -114,13 +114,14 @@ def root():
     return "Привет пользователь"
 
 @app.post("/predict_item")
-async def predict_item(item: Item) -> float:
+async def predict_item(item: Item):# -> float:
     df_new = pd.DataFrame([item.dict()])
     X_new = preprocessing_f(df_new, type_df='test')
     X_new_encoded = encoder_f(X_new)
     X_new_encoded_scaled = scaler_f(X_new_encoded)
     model_loaded = load('grid_search_model.pkl')
     Y_new_pred = model_loaded.predict(X_new_encoded_scaled)
+    Y_new_pred = np.exp(Y_new_pred)
     return Y_new_pred[0][0]
 
 @app.post("/predict_items")
@@ -144,6 +145,7 @@ async def predict_items(file: UploadFile = File(...)):
     model_loaded = load('grid_search_model.pkl')
     Y_new_pred = model_loaded.predict(X_new_encoded_scaled)
     Y_new_pred = pd.DataFrame(Y_new_pred, columns=['pred'])
+    Y_new_pred = np.exp(Y_new_pred)
     result_df = pd.concat([df_new, Y_new_pred], axis=1)
 
     stream = io.StringIO()
