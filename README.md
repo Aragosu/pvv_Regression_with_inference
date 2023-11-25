@@ -24,6 +24,6 @@ R^2 = 0.84
 
 # Примеры работы сервиса:
 * для одной записи
-![метод predict item.PNG](%EC%E5%F2%EE%E4%20predict%20item.PNG)
+![метод predict item.PNG]('./метод_predict_item.PNG')
 * для csv (нескольких)
 ![метод predict itemS.PNG](%EC%E5%F2%EE%E4%20predict%20itemS.PNG)
