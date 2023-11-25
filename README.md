@@ -24,6 +24,6 @@ R^2 = 0.84
 
 # Примеры работы сервиса:
 * для одной записи
-!['./метод_predict_item.PNG'](https://github.com/Aragosu/pvv_Regression_with_inference/blob/main/%D0%BC%D0%B5%D1%82%D0%BE%D0%B4%20predict%20item.PNG)
+![метод_predict_item.PNG](https://github.com/Aragosu/pvv_Regression_with_inference/blob/main/%D0%BC%D0%B5%D1%82%D0%BE%D0%B4%20predict%20item.PNG)
 * для csv (нескольких)
-![метод predict itemS.PNG](%EC%E5%F2%EE%E4%20predict%20itemS.PNG)
+![метод predict itemS.PNG](https://github.com/Aragosu/pvv_Regression_with_inference/blob/main/%D0%BC%D0%B5%D1%82%D0%BE%D0%B4%20predict%20itemS.PNG)
